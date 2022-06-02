@@ -9,8 +9,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Resource;
+
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Resource
+    private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
+
+    @Resource
+    private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -20,7 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/")
+                //.defaultSuccessUrl("/")
+                .successHandler(myAuthenticationSuccessHandler)
+                .failureHandler(myAuthenticationFailureHandler)
 
                 .and()
 
