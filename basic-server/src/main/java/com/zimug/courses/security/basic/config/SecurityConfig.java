@@ -20,8 +20,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
 
+    @Resource
+    private  MyAccessDeniedHandler accessDeniedHandler;
+
+    @Resource
+    private MyAuthenticationEntryPoint authenticationEntryPoint;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint);
+
         http.csrf().disable()
                 .formLogin()
                 .loginPage("/login.html")
