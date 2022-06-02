@@ -1,0 +1,10 @@
+/basic-server/target/
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/.gitignore
+
+# Project exclude paths
+/commons-spring-boot-starter/target/
