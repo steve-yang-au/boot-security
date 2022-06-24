@@ -31,6 +31,7 @@
             },
             success: function (json) {
                 if(json.isok){
+                    alert(json.message);
                     location.href = '/'; //index.html
                 }else{
                     alert(json.message);

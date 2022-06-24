@@ -1,5 +1,11 @@
 server:
   port: 8888
+  servlet:
+    session:
+      timeout: 15m
+      cookie:
+        http-only: true # js script can not access cookie data
+#        secure: true # can send cookie only by https connection
 
 spring:
   datasource:
@@ -18,3 +24,5 @@ spring:
 #      password: 123
   security:
     login-type: JSON
+  session:
+    timeout: 15m

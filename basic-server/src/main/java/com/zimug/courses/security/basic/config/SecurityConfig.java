@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,49 +29,59 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler)
-                .authenticationEntryPoint(authenticationEntryPoint);
+        http.exceptionHandling()
+            .accessDeniedHandler(accessDeniedHandler)
+            .authenticationEntryPoint(authenticationEntryPoint)
 
-        http.csrf().disable()
-                .formLogin()
-                .loginPage("/login.html")
-                .loginProcessingUrl("/login")
-                .usernameParameter("username")
-                .passwordParameter("password")
-                //.defaultSuccessUrl("/")
-                .successHandler(myAuthenticationSuccessHandler)
-                .failureHandler(myAuthenticationFailureHandler)
+            .and()
 
-                .and()
+            .csrf().disable()
+            .formLogin()
+            .loginPage("/login.html")
+            .loginProcessingUrl("/login")
+            .usernameParameter("username")
+            .passwordParameter("password")
+            //.defaultSuccessUrl("/")
+            .successHandler(myAuthenticationSuccessHandler)
+            .failureHandler(myAuthenticationFailureHandler)
 
-                .authorizeRequests()
-                .antMatchers("/login.html","/login").permitAll()
-                .antMatchers("/","/biz1","/biz2").hasAnyAuthority("ROLE_user","ROLE_admin")
-                //.antMatchers("/syslog","/sysuser").hasAnyRole("admin")
-                .antMatchers("/syslog").hasAnyAuthority("sys:log")
-                .antMatchers("/sysuser").hasAnyAuthority("sys:user")
-                .anyRequest()
-                .authenticated();
+            .and()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            //.invalidSessionUrl("/sessionExpired.html")
+            .sessionFixation()
+            .migrateSession()//will create a new session then copy all the data from the old session to this one
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(false)
+            .expiredSessionStrategy(new CustomExpiredSessionStrategy())
+
+            .and().and()
+            .authorizeRequests()
+            .antMatchers("/login.html","/login").permitAll()
+            .antMatchers("/","/biz1","/biz2").hasAnyAuthority("ROLE_user","ROLE_admin")
+            //.antMatchers("/syslog","/sysuser").hasAnyRole("admin")
+            .antMatchers("/syslog").hasAnyAuthority("sys:log")
+            .antMatchers("/sysuser").hasAnyAuthority("sys:user")
+            .anyRequest()
+            .authenticated();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
         auth.inMemoryAuthentication()
-                .withUser("user")
-                .password(passwordEncoder().encode("123456"))
-                .roles("user")
+            .withUser("user")
+            .password(passwordEncoder().encode("123456"))
+            .roles("user")
 
-                .and()
+            .and()
 
-                .withUser("admin")
-                .password(passwordEncoder().encode("123456"))
-                //.roles("admin")
-                .authorities("sys:log","sys:user")
+            .withUser("admin")
+            .password(passwordEncoder().encode("123456"))
+            //.roles("admin")
+            .authorities("sys:log","sys:user")
 
-                .and()
-                .passwordEncoder(passwordEncoder());
+            .and()
+            .passwordEncoder(passwordEncoder());
     }
 
     @Bean
